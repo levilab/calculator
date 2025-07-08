@@ -1,3 +1,77 @@
+/* Layout creation part:
+Creating required buttons & display
+*/
+const body = document.querySelector("body");
+
+// display screen
+const display = document.createElement("div");
+display.classList.add("display")
+body.appendChild(display)
+
+// button container
+const buttonContainer = document.createElement("div");
+buttonContainer.classList.add("casual")
+body.append(buttonContainer)
+
+// background
+
+const background = document.createElement("div");
+background.setAttribute("id","background")
+background.appendChild(display)
+background.appendChild(buttonContainer)
+body.append(background)
+
+
+const buttons = {
+    'functional': {'clear':'C',
+                    'delete':'DEL',
+                    'negative':'+/-',
+                    'percent':'%'},
+    'primaryButton': '789/456*123-0.=+',}
+
+for (let key in buttons) {
+    switch (key) {
+        case 'primaryButton':
+            for (let num of buttons[key]) {
+                const buttonElement = document.createElement("button")
+                buttonContainer.appendChild(buttonElement)
+                buttonElement.textContent = num
+                buttonElement.classList.add('0123456789.'.includes(num) ?'digit':'operator')
+            }
+        break;
+    
+        default:
+            const functionalObj =  buttons[key]
+            for (let button in functionalObj) {
+                const buttonElement = document.createElement("button");
+                buttonContainer.appendChild(buttonElement);
+                buttonElement.textContent = functionalObj[button]
+                buttonElement.classList.add(key, button)
+                }
+    }
+}
+/* Functions part:
+Creating required buttons & display
+*/
+
+const mappedOperater = {
+    '+': add,
+    '-': subtract,
+    '*': multiply,
+    '/': divide,
+}
+
+// an object for memory storage during calculation
+const obj = {
+    num1: undefined,
+    num2: undefined,
+    operator: undefined,
+    result: undefined, 
+};
+
+// a list of current operator
+let  currentOperator = []
+
 function add(a,b) {
     return a+b
 };
@@ -18,163 +92,140 @@ function operate(operator, num1, num2) {
     return operator(num1, num2)
 }
 
-const body = document.querySelector("body");
-
-const display = document.createElement("div");
-display.classList.add("display")
-// display.textContent = "Display"
-// display.setAttribute("id","text")
-body.appendChild(display)
-
-const buttonContainer = document.createElement("div");
-buttonContainer.classList.add("casual")
-body.append(buttonContainer)
-
-const buttonClear = document.createElement("button");
-buttonContainer.appendChild(buttonClear)
-buttonClear.style.width = 20 + "%"
-buttonClear.textContent = "Clear"
-buttonClear.classList.add("clear")
-
-const buttonDel = document.createElement("button");
-buttonContainer.appendChild(buttonDel)
-buttonDel.style.width = 20 + "%"
-buttonDel.textContent = "DEL"
-buttonDel.classList.add("delete")
-
-const buttonDot = document.createElement("button");
-buttonContainer.appendChild(buttonDot)
-buttonDot.style.width = 20 + "%"
-buttonDot.textContent = "."
-buttonDot.classList.add("digit")
-
-const digitOperator = '0123456789+-*/='
-
-for (item of digitOperator) {
-    const button = document.createElement("button");
-    button.textContent = item;
-    if ('+-*/'.includes(item)) {
-        button.classList.add('operator')
-    } else if ('='.includes(item)) {
-        button.classList.add('calculate')
-    } else {
-        button.classList.add('digit')
+function clearMemo() {
+    for (key in obj) {
+        obj[key] = undefined
+        };
     }
-    button.style.width = 20 + "%"
+
+function clear() {
+    clearMemo()
+    display.textContent = ''
+}
+
+function tempDelete() {
+    // if (obj['result'] !== undefined) {
+    //     obj['result'] = undefined;
+    //     display.textContent = '';
+    // }
+    if (obj['num1'] !== undefined){
+        if (obj['num2']==undefined) {
+        display.textContent = display.textContent.slice(0, display.textContent.length-1)
+        obj['num1'] = Number(display.textContent)
+    } else {
+        console.log(display.textContent.length)
+        display.textContent = display.textContent.slice(0, display.textContent.length-1)
+        obj['num2'] = Number(display.textContent)
+    }
+}
+}
+
+function calculate(operator) {
+    display.textContent = ''
+    obj['operator'] = mappedOperater[operator]
     
-    buttonContainer.appendChild(button)
+    if (currentOperator.length > 0 
+        && obj['num1'] !== undefined 
+        && obj['num2'] !== undefined) {
+        obj['result'] = operate(currentOperator.pop(), obj['num1'],obj['num2']);
+        display.textContent = obj['result'];
+        obj['num1'] = obj['result'];
+        obj['num2'] = undefined;
+    }
+    currentOperator.push(obj['operator'])
+
 }
 
+function addDigit(digit) {
+    // chain calculation, clear the screen if previous calc. done & second num reset
+    if (obj['result'] !== undefined && obj['num2'] === undefined) {
+        display.textContent = '';
+    }
 
+    // edge case: float number
+    if (digit === ".") {
+        if (!display.textContent.includes(".")) {
+            display.textContent += digit
+        }
+    }
+    display.textContent += digit;
 
-const obj = {
-    num1: undefined,
-    num2: undefined,
-    operator: undefined,
-};
-
-const mappedOperater = {
-    '+': add,
-    '-': subtract,
-    '*': multiply,
-    '/': divide,
+    
+    // default behavior
+    const num = display.textContent;
+    if (!obj['num1'] || !obj['operator']) {
+        obj['num1'] = Number(num)
+    } else {
+        obj['num2'] = Number(num)
+        if (obj['num2']===0 && currentOperator[0] === divide) {
+            display.textContent = "cannot divided by 0"
+            clearMemo()
+        }
+    }
 }
 
-// a list of current operator
-let  currentOperator = []
-let result;
+function addPercentage() {
+    if (!obj['num1']) {display.textContent = ''}
+    else if (!obj['num2']) {
+        obj['num1'] *= 0.01;
+        display.textContent = obj['num1']}
+    else {
+        obj['num2'] *= 0.01;
+        display.textContent = obj['num2']
+    }
+}
+
+function modifyCurrent(args) {
+    if (!obj['num1']) {display.textContent = ''}
+    else if (!obj['num2']) {
+        obj['num1'] *= args.includes('percent') ? 0.01 : -1;
+        display.textContent = obj['num1']}
+    else {
+        obj['num2'] *= args.includes('percent') ? 0.01 : -1;
+        display.textContent = obj['num2']
+    }
+}
+// two functions, same steps, only different parameter values
 
 buttonContainer.addEventListener("click", event => {
     const target = event.target;
-    
-    function clearMemo() {
-        for (key in obj) {
-            obj[key] = undefined
-        };
-    }
-    if (target.className === 'clear') {
-        clearMemo()
-        display.textContent = ''
-        console.log(obj)
+    switch (target.className) {
+        case 'functional clear':
+            clear()
+        break;
 
-    } else if (target.className === 'operator') {
+        case "functional delete":
+            tempDelete()
+        break;
+
+        case "functional percent":
+        case "functional negative":
+            modifyCurrent(target.className)
+            break;
+
+        case 'operator':
+            calculate(target.textContent)
+            console.log(target.textContent)
+        break;
         
-        display.textContent = ''
-        const compute = target.textContent
-        obj['operator'] = mappedOperater[compute]
+        case 'digit':        
+            addDigit(target.textContent)
+            console.log(obj)
+        break;
         
-
-        if (currentOperator.length > 0 
-            && obj['num1'] !== undefined 
-            && obj['num2'] !== undefined) {
-            const lastOperator = currentOperator.pop();
-            const tempResult = operate(lastOperator, obj['num1'],obj['num2']);
-            display.textContent = tempResult;
-            obj['num1'] = tempResult;
-        }
-        currentOperator.push(obj['operator'])
-        console.log(currentOperator)
-        console.log(obj)
-
-    } else if (target.className === 'digit') {
-        if (result !== undefined) {
-            clearMemo();
-            display.textContent = '';
-        }
-        if (currentOperator.length !== 0 && obj['num2'] === undefined) {
-            display.textContent = ''
-        }
-        if (target.textContent === ".") {
-            if (!display.textContent.includes(".")) {
-                display.textContent += target.textContent
+        default: // operator "="
+            if (currentOperator.length !== 0 
+                && obj['num1'] !== undefined
+                && obj['num2'] !== undefined) {
+            obj['result'] = operate(currentOperator.pop(),obj['num1'], obj['num2'])
+            obj['operator'] = undefined
+            const roundedResult = obj['result'].toFixed(5);
+            display.textContent = roundedResult
+            obj['num1'] = obj['result']
+            // obj['result'] = undefined;
             }
-        } else {display.textContent += target.textContent;}
-
-        
-        const num = display.textContent;
-        if (!obj['num1'] || !obj['operator']) {
-            obj['num1'] = Number(num)
-        } else {
-            obj['num2'] = Number(num)
-            if (obj['num2']===0 && currentOperator[0] === divide) {
-                display.textContent = "cannot divided by 0"
-                clearMemo()
-            }
+            
+            console.log(obj)
         }
-        console.log(obj)
-    } else if (target.className === "delete") {
-        if (result !== undefined) {
-            result = undefined;
-            display.textContent = '';
-        }
-        if (obj['num1'] !== undefined){
-            if (obj['num2']==undefined) {
-            display.textContent = display.textContent.slice(0, display.textContent.length-1)
-            obj['num1'] = Number(display.textContent)
-        } else {
-            console.log(display.textContent.length)
-            display.textContent = display.textContent.slice(0, display.textContent.length-1)
-            obj['num2'] = Number(display.textContent)
-        }
-    }
-    }
-    
-    else {
-        if (currentOperator.length !== 0 
-            && obj['num1'] !== undefined
-            && obj['num2'] !== undefined) {
-        result = operate(currentOperator.pop(),obj['num1'], obj['num2'])
-        const roundedResult = result - result.toFixed(6) > 0 ? result.toFixed(5) : result
-        display.textContent = roundedResult
-        obj['num1'] = result
-        result = undefined;
-        }
-        else {
-            // display.textContent = obj['num1']
-            result = undefined;
-        }
-        console.log(currentOperator)
-        console.log(obj)
-    }
 }
 )

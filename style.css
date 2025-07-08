@@ -2,34 +2,100 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: flex-start;
+    justify-content: space-between;
     min-height: 100vh;
-    gap: 10px;
+    gap: 48px;
+    margin: 0;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+    gap: 20px;
+    color: brown;
+    font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: antiquewhite;
+    width: 100%;
+}
+
+.footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+    gap: 20px;
+    font-family: Arial, Helvetica, sans-serif;
+    background-color: antiquewhite;
+    width: 100%;
+    font-size: 36px;
+}
+a {
+    font-weight: bold;
+}
+
+img {
+    width: 100px;
+    border-radius: 16px;
+}
+
+#background {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    background-color: rgb(230, 215, 187);
+    padding: 30px;
+    border-radius: 8px;
+    align-items: center;
 }
 
 div.display {
-    border: 1px solid orange;
     width: 300px;
-    height: 50px;
+    height: 75px;
     display: flex;
-    align-items: center;
-    justify-content: center;
+    align-items:flex-end;
+    justify-content:flex-end;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background-color: rgb(106, 102, 102);
+    color: whitesmoke;
+    font-weight: bold;
+    font-size: 24px;
+    letter-spacing: 1px;
 }
 
 div.casual {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    justify-content: space-evenly;
+    justify-content: space-between;
     width: 300px;
-    border: 1px solid red;
     box-sizing: border-box;
     gap: 2px;
-    padding: 8px 16px;
+    border-radius: 8px;
 }
 
 button {
     aspect-ratio: 1/1;
     border-radius: 50%;
     margin: 3px;
+    width: 20%;
+    color: whitesmoke;
+    background-color: rgb(88, 85, 85);
+    font-weight: bold;
+    font-size: 20px;
+    border-style: solid;
+    border-width: 3px;
+    border-color: goldenrod
+}
+
+
+button.operator {
+    background-color: darkslategrey
+}
+
+button.functional {
+    background-color: darkorange;
+}
+button:hover {
+    background-color:grey;
 }
