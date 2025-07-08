@@ -164,16 +164,6 @@ function addDigit(digit) {
     }
 }
 
-function addPercentage() {
-    if (!obj['num1']) {display.textContent = ''}
-    else if (!obj['num2']) {
-        obj['num1'] *= 0.01;
-        display.textContent = obj['num1']}
-    else {
-        obj['num2'] *= 0.01;
-        display.textContent = obj['num2']
-    }
-}
 
 function modifyCurrent(args) {
     if (!obj['num1']) {display.textContent = ''}
